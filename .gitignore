@@ -34,3 +34,4 @@ pygraphviz/_graphviz*.so
 MANIFEST
 .eggs/
 venv/
+tools.egg-info/
