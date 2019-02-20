@@ -4,9 +4,11 @@ Utility to scan, control, manage and optimize use of storage on forensic work
 
 ## Concepts:
 
-Storage: A storage space, can be a drive or a folder.
+Storage: A storage space, can be a drive or a folder, can be mounted or not.
 
-Folder: A scanned folder in the filesystem, can be mounted or not.
+Report: An unique report, identified by year, type, number, can have different folders in different storages
+
+Folder: A scanned folder in the filesystem.
 
 Storage type: Purpose of storage, can be finished reports, deliverables, work in progress, data, backup
 
@@ -25,17 +27,26 @@ First/Last Seen: First/last seen folder in the type
 
 ## Modules:
 
-data\<user>.yml: all config stuff, it is separated from user to user
+`data/<user>.yml`: all config stuff, it is separated from user to user
 
 database: Manage the database
 
-drive: scans all drives and search about connected ones, UNC names, etc. Necessary to name storages
+drives: scans all drives and search about connected ones, UNC names, etc. Necessary to name storages
 
-scan: scans a directory
+scanner: scans a directory
+
+savescan: functions to persist scanned information to database
+
+stats: to manage stats from filesystem
+
+utils: miscelaneus stuff
+
+api: functions to model de api
 
 main: CLI front-end
 
-## Using it:
+
+## Intalling it:
 
 Activate virtualenv, 
 ````

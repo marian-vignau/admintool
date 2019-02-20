@@ -89,7 +89,11 @@ class TimePeriod(object):
         if self._older is None:
             return None, None
         else:
-            return fn(self._older), fn(self._newer)
+            try:
+                return fn(self._older), fn(self._newer)
+            except Exception as e:
+                print(e)
+                return None, None
 
     def __str__(self):
         if self._older is None:

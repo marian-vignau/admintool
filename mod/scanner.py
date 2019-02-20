@@ -107,6 +107,7 @@ class FolderType(object):
                 for subfolderclass in self.type["subfolders"]:
                     obj = FolderType(subfolderclass)
                     if obj.check(file):
+                        obj.report = getattr(self, "report", None)
                         obj.scan(file, self.storage)
                         if obj.finished:
                             processed = True

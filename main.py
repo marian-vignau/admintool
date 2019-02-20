@@ -6,7 +6,7 @@ __author__ = "Maria Andrea Vignau"
 import click
 from mod.drives import Drives
 from mod import scanner
-from mod import model
+from mod import api
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
@@ -36,22 +36,23 @@ def storage(operation, name):
     if operation == "purposes":
         click.echo('; '.join(scanner.storage_types))
     if operation == "list":
-        for idx, storage in enumerate(model.storagelist()):
-            status = Drives.find_path(storage.drivename, storage.parentdir)
-            if not status:
-                status = "unmounted"
+        for idx, storage in enumerate(api.storagelist()):
+            currentpath = Drives.find_path(storage.drivename, storage.parentdir)
+            if not currentpath:
+                currentpath = "unavailable"
             line = """<{1.name}> {1.purpose}|{2} => "{1.drivename}{1.parentdir}" ?="{1.description}" """
-            line = line.format(idx + 1, storage, status)
+            line = line.format(idx + 1, storage, currentpath)
             click.echo(line)
         click.echo("Founded %d storage" % (idx + 1))
 
     if operation == "remove":
-        model.storagedel(name)
-        click.echo('remove storage %s' % name)
+        if api.storagedel(name):
+            click.echo('remove storage %s' % name)
 
     if operation == "scan":
-        obj = model.storagescan(name)
-        click.echo('scan storage %s' % str(obj))
+        obj = api.storagescan(name)
+        if obj:
+            click.echo('scan storage %s' % str(obj))
 
 
 @cli.command()
@@ -77,7 +78,34 @@ def storage_add(ctx, name, drive, parentdir, _type, description):
         drivename = Drives.find_drivename(drive[0])
     else:
         drivename = drive
-    model.storageadd(name, drivename, parentdir, _type, description)
+    api.storageadd(name, drivename, parentdir, _type, description)
+
+
+@cli.command()
+@click.pass_context
+@click.argument('operation', type=click.Choice(["list", "purposes", "remove", "show"]),
+                default="list"
+                )
+@click.argument('name', type=str, default="")
+def reports(ctx, operation, name):
+    if operation == "list":
+        idx = 0
+        for idx, report in enumerate(api.reportlist()):
+            line = """<{1.reportname}> """
+            line = line.format(idx + 1, report)
+            click.echo(line)
+        click.echo("Founded %d reports" % (idx + 1))
+
+    elif operation == "show":
+        for line in api.reportinfo(name.upper()):
+            click.echo(line)
+
+
+@cli.command()
+def wipescanned():
+    """ Delete all scanned info."""
+    api.wipescannedinfo()
+    click.echo("deleted all scanned info")
 
 
 @cli.command()

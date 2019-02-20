@@ -9,7 +9,7 @@ from .database import *
 def append_name(folderscanner):
     import codecs
     with codecs.open("subfolders", "a") as fh:
-        fh.write("%s --> %s\n" % (folderscanner.path, folderscanner.path.parent))
+        fh.write("%s --> %s\n" % (folderscanner.path, folderscanner.stor))
     print("%s --> %s" % (folderscanner.path, folderscanner.path.parent))
 
 
@@ -20,13 +20,14 @@ def save_on_db(folderscanner):
     try:
         folder = Folder[id]
     except orm.ObjectNotFound:
+        drivepath=str(folderscanner.path.drive)
         folder = Folder(
             folderid=id,
             storage=folderscanner.storage,
             report=folderscanner.report,
             name=str(folderscanner.path.name),
-            rootdir=str(folderscanner.path.drive),
-            subpath=str(folderscanner.path.parent),
+            rootdir=drivepath,
+            subpath=str(folderscanner.path.parent)[len(drivepath)+1:],
             purpose=folderscanner.type["purpose"]
 
         )
@@ -57,7 +58,6 @@ def start_report(folderscanner):
             reportname=reportname,
             data=yaml.dump(values, default_flow_style=False)
         )
-    print("start report", reportname)
 
 
 def save_report(folderscanner):
