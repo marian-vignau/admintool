@@ -1,9 +1,11 @@
 import hashlib
 import yaml
+import codecs
 
 from pony import orm  # fades pony
 
 from .database import *
+from .utils import logger
 
 
 def append_name(folderscanner):
@@ -61,4 +63,10 @@ def start_report(folderscanner):
 
 
 def save_report(folderscanner):
+    save_on_db(folderscanner)
+
+
+def log_subfolder(folderscanner):
+    with codecs.open("subfolders.csv", "a", encoding="utf8") as fh:
+        fh.write("{};{}\n".format(folderscanner.path.name, folderscanner.path.parent))
     save_on_db(folderscanner)

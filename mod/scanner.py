@@ -1,3 +1,4 @@
+import pprint
 """
 To define regex and other search patterns
 
@@ -75,7 +76,10 @@ class Storage(object):
 
 class FolderType(object):
     def __init__(self, folder_type):
-        self.type = config_patterns["FolderTypes"][folder_type]
+        if isinstance(folder_type, str):
+            self.type = config_patterns["FolderTypes"][folder_type]
+        else:
+            self.type = folder_type
         self._regex = re.compile(self.type.get("regex", "").strip(), re.IGNORECASE | re.MULTILINE)
         self.parsed = False
         self.report = None

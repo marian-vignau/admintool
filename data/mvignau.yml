@@ -9,68 +9,57 @@ Storages:
     purpose: reports
     root: RootFinishedFolder
 
+regex_reports: &regex_reports >
+  ^(?P<infperiod>\d\d)-(?P<infnumber>\d{4})(?P<inftype>\w\w)?( +(exp|expte|of)
+  +(?P<expnumber>\d*)-(?P<expperiod>\d*)(-(?P<circunscription>\d*))?)? *(?P<comments>.*)$
+
 FolderTypes:
   RootFinishedFolder:
     purpose: finished
     subfolders:
-    - ReportFolder
+    - ReportFolder:
+      - purpose: data
     - Generic
-
-  ReportFolder:
-    purpose: report
 
   RootDataFolder:
     purpose: data
     subfolders:
-    - ReportDataFolder
+    - type: ReportDataFolder
+      purpose: report
+      regex: *regex_reports
+      on_check: start_report
+      on_finish: save_report
+      subfolders:
+      - type: RawFolder
+        purpose: raw
+        subfolders:
+        - Generic
+        regex: "extracc.*"
+        on_finish: save_on_db
+      - type: ImgFolder
+        purpose: img
+        subfolders:
+        - Generic
+        regex: "fotos.*"
+        on_finish: save_on_db
+      - type: OpticDiskFolder
+        purpose: deliverables
+        subfolders:
+        - Generic
+        regex: "disco.?optico.*|dvd.*|cd.*"
+        on_finish: save_on_db
+      - type: WorkFolder
+        purpose: work
+        subfolders:
+        - Generic
+        regex: "autopsy.*|griffeye.*|ief*|axiom.*|osforensics.*|temp.*|work.*"
+        on_finish: save_on_db
+      - type: DataSubFolder
+        purpose: undefined
+        subfolders:
+        - Generic
+        on_finish: log_subfolder
     - Generic
-
-  ReportDataFolder:
-    purpose: report
-    subfolders:
-    - RawFolder
-    - ImgFolder
-    - OpticDiskFolder
-    - ReportSubFolder
-    regex: >
-      ^(?P<infperiod>\d\d)-(?P<infnumber>\d{4})(?P<inftype>\w\w)?( +(exp|expte|of)
-      +(?P<expnumber>\d*)-(?P<expperiod>\d*)(-(?P<circunscription>\d*))?)? *(?P<comments>.*)$
-    on_check: start_report
-    on_finish: save_report
-
-  RawFolder:
-    purpose: report.raw
-    subfolders:
-    - Generic
-    regex: "extracc*"
-    on_finish: save_on_db
-
-  ImgFolder:
-    purpose: report.img
-    subfolders:
-    - Generic
-    regex: "fotos*"
-    on_finish: save_on_db
-
-  OpticDiskFolder:
-    purpose: report.optic
-    subfolders:
-    - Generic
-    regex: "disco.?optico*"
-    on_finish: save_on_db
-
-  WorkFolder:
-    purpose: work
-    subfolders:
-    - Generic
-    regex: "autopsy*|griffeye*|ief*|axiom*"
-    on_finish: save_on_db
-
-  ReportSubFolder:
-    purpose: report
-    subfolders:
-    - Generic
-    on_finish: append_name
 
   Generic:
     purpose: report

@@ -2,7 +2,7 @@
 Many utilities classes or functions
 
 """
-
+import yaml  # fades pyyaml
 import logging
 
 logger = logging.getLogger('tools')
@@ -29,3 +29,39 @@ def bytes2human(n):
             value = float(n) / prefix[s]
             return '%.1f%s' % (value, s)
     return "%sB" % n
+
+
+class tables(object):
+    def __init__(self, string_format):
+        """
+
+        :param string_format:
+        sample:
+            - header: purpose
+              format: 1.purpose
+              length: 10
+
+        """
+        self.string_format = yaml.load(string_format)
+        self.line_format = ""
+        for item in self.string_format:
+            length = item.get("length", 15)
+            item_format = item.get("format", "{}")
+            item_format = item_format.replace("}", ":%ds}|" % length)
+            self.line_format += item_format
+
+        print(self.string_format)
+        print(self.line_format)
+        print(self.show_header())
+
+
+    def show_header(self):
+        sal = ""
+        for x in self.string_format:
+            length = x.get("length", 15)
+            item = "_" * length + x.get("header", "")
+            sal += item[:-length] + ":"
+        return sal
+
+    def show_item(self, values):
+        return self.line_format.format(values)
