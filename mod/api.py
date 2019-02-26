@@ -13,6 +13,7 @@ from .drives import Drives
 from . import scanner
 from . import default_owner
 from .utils import bytes2human
+from .stats import Stats
 
 @orm.db_session
 def storageadd(name, drivename, parentdir, purpose, description):
@@ -46,10 +47,21 @@ def storagelist():
     for storage in Storage.select(lambda s: s.owner.login == default_owner):
         yield storage
 
+
 @orm.db_session
 def reportlist():
+    purposes = {}
     for report in Report.select(lambda s: s.owner.login == default_owner):
-        yield report
+        for dir in report.reportdirs:
+            stats = Stats()
+            stats.frompersist(dir)
+            if not dir.purpose in purposes or purposes[dir.purpose] is None:
+                purposes[dir.purpose] = stats
+            else:
+                purposes[dir.purpose].append(stats)
+        yield report, purposes
+        for key in purposes.keys():
+            purposes[key] = None
 
 
 @orm.db_session

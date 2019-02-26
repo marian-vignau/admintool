@@ -16,5 +16,24 @@ with open(filename, "r") as fa:
 
 config_patterns = yaml.load(patterns)
 
-import pprint
-# pprint.pprint(config_patterns)
+def extract_purposes(folders):
+    """Extract registered purposes in foldertypes lists."""
+    purposes_detected = []
+    if isinstance(folders, dict):
+        folders_list = folders.items()
+    elif isinstance(folders, list):
+        folders_list = folders
+
+    for item in folders_list:
+        if isinstance(item, tuple):
+            item = item[1]
+        if isinstance(item, dict):
+            if item.get("purpose", False) and not item["purpose"] in purposes_detected:
+                purposes_detected.append(item["purpose"])
+            if item.get("subfolders", False):
+                purposes_detected.extend(extract_purposes(item["subfolders"]))
+    return purposes_detected
+
+
+possible_purposes = extract_purposes(config_patterns["FolderTypes"])
+possible_purposes.sort()

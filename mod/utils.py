@@ -31,7 +31,7 @@ def bytes2human(n):
     return "%sB" % n
 
 
-class tables(object):
+class Tables(object):
     def __init__(self, string_format):
         """
 

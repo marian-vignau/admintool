@@ -40,13 +40,22 @@ class Stats(object):
         self.byte_size += stats.byte_size
         self.count += stats.count
 
-    def persist(self, object):
+    def topersist(self, object):
         """To persist in an object database."""
         object.created_older, object.created_newer = self.created.todatetime()
         object.modified_older, object.modified_newer = self.modified.todatetime()
         object.accessed_older, object.accessed_newer = self.accessed.todatetime()
         object.byte_size = self.byte_size
         object.count = self.count
+
+    def frompersist(self, object):
+        """ To put into memory from object database         """
+        self.created.fromdatetime(object.created_older, object.created_newer)
+        self.modified.fromdatetime(object.modified_older, object.modified_newer)
+        self.accessed.fromdatetime(object.accessed_older, object.accessed_newer)
+        self.byte_size = object.byte_size
+        self.count = object.count
+
 
     def __str__(self):
         out = ["Created: %s" % self.created,
@@ -94,6 +103,12 @@ class TimePeriod(object):
             except Exception as e:
                 print(e)
                 return None, None
+
+    def fromdatetime(self, older, newer):
+        """ Convert from datetime to load from database"""
+        fn = lambda time: datetime.timestamp(time)
+        self._older = fn(older)
+        self._newer = fn(newer)
 
     def __str__(self):
         if self._older is None:

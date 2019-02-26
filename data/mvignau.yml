@@ -17,8 +17,8 @@ FolderTypes:
   RootFinishedFolder:
     purpose: finished
     subfolders:
-    - ReportFolder:
-      - purpose: data
+    - type: ReportFolder
+      purpose: data
     - Generic
 
   RootDataFolder:

@@ -35,7 +35,7 @@ def save_on_db(folderscanner):
         )
     else:
         print("existe", cad)
-    folderscanner.stats.persist(folder)
+    folderscanner.stats.topersist(folder)
 
 
 @orm.db_session

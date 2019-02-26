@@ -7,6 +7,7 @@ import click
 from mod.drives import Drives
 from mod import scanner
 from mod import api
+from mod import utils
 
 @click.group()
 @click.option('--debug/--no-debug', default=False)
@@ -89,7 +90,10 @@ def storage_add(ctx, name, drive, parentdir, _type, description):
 @click.argument('name', type=str, default="")
 def reports(ctx, operation, name):
     if operation == "list":
+
+        table = utils.Tables()
         idx = 0
+
         for idx, report in enumerate(api.reportlist()):
             line = """<{1.reportname}> """
             line = line.format(idx + 1, report)
@@ -113,3 +117,5 @@ def wipescanned():
 def info(ctx):
     """Show information"""
     click.echo('Debug is %s' % (ctx.obj['DEBUG'] and 'on' or 'off'))
+
+
