@@ -46,7 +46,7 @@ api: functions to model de api
 main: CLI front-end
 
 
-## Intalling it:
+## Install:
 
 Activate virtualenv, 
 ````
