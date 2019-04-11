@@ -61,6 +61,21 @@ from datetime import datetime
 from . import config_patterns
 from .stats import Stats
 from . import savescan
+total_progress = 0
+
+def progress_bar(end=False):
+    global total_progress
+    if end:
+        print(total_progress, "  < End > ")
+        total_progress = 0
+    else:
+        total_progress +=1
+        if total_progress % 50 == 0:
+            print(total_progress)
+        else:
+            print(".", end="")
+
+
 
 storage_types = config_patterns["Storages"].keys()
 
@@ -72,6 +87,7 @@ class Storage(object):
     def scan(self, path, storageobj):
         self.rootfolder = FolderType(self.type["root"])
         self.rootfolder.scan(path, storageobj)
+        progress_bar(end=True)
 
 
 class FolderType(object):
@@ -82,6 +98,8 @@ class FolderType(object):
             self.type = folder_type
         self._regex = re.compile(self.type.get("regex", "").strip(), re.IGNORECASE | re.MULTILINE)
         self.parsed = False
+
+        # attr used on savescan module, to hold data about scanned report
         self.report = None
 
     def check(self, path):
@@ -96,8 +114,12 @@ class FolderType(object):
         return False
 
     def scan(self, path, storage):
+        """Scan folders checking size, dates, etc."""
         self.path = path
         self.storage = storage
+        progress_bar()
+        # In the event of checking a folder type
+        # trigger a function from savescan module
         if self.type.get("on_check", None):
             fn = getattr(savescan, self.type["on_check"])
             fn(self)
@@ -108,21 +130,29 @@ class FolderType(object):
         try:
             for file in self.path.iterdir():
                 processed = False
+                # cycle through subfolder types until
+                # it found one that match the type
                 for subfolderclass in self.type["subfolders"]:
                     obj = FolderType(subfolderclass)
                     if obj.check(file):
-                        obj.report = getattr(self, "report", None)
                         obj.scan(file, self.storage)
                         if obj.finished:
+                            obj.report = getattr(self, "report", None)
                             processed = True
                             self.stats.append(obj.stats)
                             break
                 if not processed:
                     self.stats.update(file)
+        except FileNotFoundError:
+            # some very very large file path give this error
+            pass
         except PermissionError:
+            # some system specific folder give this error
             pass
         self.scanned = datetime.now()
         self.finished = True
+        # In the event of finishing a folder scanning
+        # trigger a function from savescan module
         if self.type.get("on_finish", None):
             fn = getattr(savescan, self.type["on_finish"])
             fn(self)
